@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,23 +30,28 @@ namespace IdentityManager.Controllers
             return View();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Register()
-        {
-            if(!await _roleManager.RoleExistsAsync("Admin"))
-            {
-                await _roleManager.CreateAsync(new IdentityRole("Admin"));
-                await _roleManager.CreateAsync(new IdentityRole("User"));
-            }
-            var registerViewModel = new RegisterViewModel();
-            return View(registerViewModel);
-        }
+        
         [HttpGet]
         public IActionResult Login(string returnurl=null)
         {
             ViewData["ReturnUrl"] = returnurl;
             var loginViewModel = new LoginViewModel();
             return View(loginViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Register()
+        {
+            if (!await _roleManager.RoleExistsAsync("Admin"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                await _roleManager.CreateAsync(new IdentityRole("User"));
+            }
+            var registerViewModel = new RegisterViewModel()
+            {
+                RoleList = GetRoles()
+            };
+            return View(registerViewModel);
         }
 
         [HttpPost]
@@ -63,12 +69,36 @@ namespace IdentityManager.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    if(model.RoleSelected != null && model.RoleSelected.Length > 0 && model.RoleSelected == "Admin")
+                    {
+                        await _userManager.AddToRoleAsync(user, "Admin");
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, "User");
+                    }
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
             }
-            var registerViewModel = new RegisterViewModel();
-            return View(registerViewModel);
+            model.RoleList = GetRoles();
+            return View(model);
+        }
+
+        public List<SelectListItem> GetRoles()
+        {
+            List<SelectListItem> listItems = new List<SelectListItem>();
+            listItems.Add(new SelectListItem()
+            {
+                Value = "Admin",
+                Text = "Admin"
+            });
+            listItems.Add(new SelectListItem()
+            {
+                Value = "User",
+                Text = "User"
+            });
+            return listItems;
         }
 
 
