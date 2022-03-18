@@ -12,7 +12,6 @@ namespace IdentityManager.Controllers
 {
     public class AccountController : Controller
     {
-
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<IdentityUser> _signInManager;
