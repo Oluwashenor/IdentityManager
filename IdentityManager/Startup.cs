@@ -42,6 +42,11 @@ namespace IdentityManager
             //{
             //    opt.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Home/AccessDenied");
             //});
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("UserAndAdmin", policy => policy.RequireRole("Admin").RequireRole("User"));
+            });
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
