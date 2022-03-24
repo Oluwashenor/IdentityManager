@@ -46,6 +46,19 @@ namespace IdentityManager
             {
                 options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
                 options.AddPolicy("UserAndAdmin", policy => policy.RequireRole("Admin").RequireRole("User"));
+                options.AddPolicy("Admin_CreateAccess", policy => policy.RequireRole("Admin").RequireClaim("Create", "True"));
+                options.AddPolicy("Admin_Create_Edit_DeleteAccess", policy => policy.RequireRole("Admin")
+                .RequireClaim("Create", "True")
+                .RequireClaim("Edit", "True")
+                .RequireClaim("Delete", "True"));
+
+
+                options.AddPolicy("Admin_Create_Edit_DeleteAccess_OR_SuperAdmin", policy => policy.RequireAssertion(context => (
+                context.User.IsInRole("Admin")  && context.User.HasClaim(c=>c.Type=="Create" && c.Value=="True")
+                && context.User.HasClaim(c => c.Type == "Edit" && c.Value == "True")
+                && context.User.HasClaim(c => c.Type == "Delete" && c.Value == "True")
+
+                ) || context.User.IsInRole("SuperAdmin"))); ;
             });
             services.AddControllersWithViews();
             services.AddRazorPages();

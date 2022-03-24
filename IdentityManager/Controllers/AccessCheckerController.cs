@@ -51,6 +51,7 @@ namespace IdentityManager.Controllers
             return View();
         }
 
+        [Authorize(Policy = "Admin_CreateAccess")]
         // Accessible by admin users with a claim of create to be true 
         public IActionResult Admin_CreateAccess()
         {
@@ -58,12 +59,14 @@ namespace IdentityManager.Controllers
         }
 
         // Accessible by admin with claim of create edit and delete (AND not OR)
+        [Authorize(Policy = "Admin_Create_Edit_DeleteAccess")]
         public IActionResult Admin_Create_Edit_DeleteAccess()
         {
             return View();
         }
+        [Authorize(Policy = "Admin_Create_Edit_DeleteAccess_OR_SuperAdmin")]
         // accessible by admin user with create, edit and delete (And NOT OR), OR if the user is superadmin
-        public IActionResult Admin_Create_Edit_DeleteAccess_SuperAdmin()
+        public IActionResult Admin_Create_Edit_DeleteAccess_OR_SuperAdmin()
         {
             return View();
         }
